@@ -112,8 +112,28 @@ app.post('/api/process-image', upload.single('image'), async (req, res) => {
         const result = await response.json();
         console.log('API Response Data:', result);
         
-        // Process the API response and extract the generated image
-        const processedImage = result.data?.image || result.image;
+        // Process the API response and extract the generated image from choices
+        let processedImage = null;
+        if (result.choices && result.choices.length > 0) {
+          const choice = result.choices[0];
+          if (choice.message && choice.message.content) {
+            // 解析Markdown格式的内容
+            const content = choice.message.content;
+            const lines = content.split('\n');
+            
+            // 查找最后一个图片链接
+            for (let i = lines.length - 1; i >= 0; i--) {
+              const line = lines[i];
+              if (line.startsWith('![') && line.includes('](')) {
+                const urlMatch = line.match(/\]\((.*?)\)/);
+                if (urlMatch && urlMatch[1]) {
+                  processedImage = urlMatch[1];
+                  break;
+                }
+              }
+            }
+          }
+        }
         
         if (!processedImage) {
           console.error('API Response Missing Image Data:', result);
@@ -143,4 +163,22 @@ app.post('/api/process-image', upload.single('image'), async (req, res) => {
 
   } catch (error) {
     console.error('Error processing image:', error);
-    res.status(500).json({ error: '�
+    res.status(500).json({ error: '图片处理失败，请稍后重试' });
+  }
+});
+
+// 状态检查API端点
+app.get('/api/process-status/:taskId', (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const task = getTask(taskId);
+    res.json(task);
+  } catch (error) {
+    res.status(404).json({ error: '任务不存在或已过期' });
+  }
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

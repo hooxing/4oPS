@@ -45,4 +45,21 @@ const getTask = (taskId) => {
 };
 
 // 清理超过1小时的任务
-setInterval(()
+setInterval(() => {
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  let cleanedCount = 0;
+  for (const [taskId, task] of tasks.entries()) {
+    if (task.createdAt < oneHourAgo) {
+      tasks.delete(taskId);
+      cleanedCount++;
+    }
+  }
+  if (cleanedCount > 0) {
+    console.log('Task Cleanup:', {
+      cleanedCount,
+      remainingTasks: tasks.size
+    });
+  }
+}, 15 * 60 * 1000); // 每15分钟清理一次
+
+export { TaskStatus, createTask, updateTask, getTask };
