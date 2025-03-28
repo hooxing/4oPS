@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { PhotoIcon } from '@heroicons/react/24/outline';
+import { PhotoIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
 interface StyleOption {
@@ -39,6 +39,7 @@ function App() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -62,6 +63,7 @@ function App() {
   };
 
   const handleSubmit = async () => {
+    setError(null);
     if (!selectedFile) {
       toast.error('请先上传图片');
       return;
@@ -132,9 +134,11 @@ function App() {
       
       await checkStatus();
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '处理失败，请稍后重试';
       console.error('Error:', error);
-      toast.error(error instanceof Error ? error.message : '处理失败，请稍后重试');
+      toast.error(errorMessage);
       setProcessingStatus('');
+      setError(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -224,6 +228,25 @@ function App() {
             {processingStatus && (
               <div className="text-center text-sm text-primary-600 mt-4">
                 <p>{processingStatus}</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="card mt-4 bg-red-50 border-red-200">
+                <div className="flex items-center space-x-3 text-red-700 mb-3">
+                  <ExclamationCircleIcon className="h-5 w-5" />
+                  <h3 className="font-medium">处理失败</h3>
+                </div>
+                <p className="text-sm text-red-600 mb-4">{error}</p>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    handleSubmit();
+                  }}
+                  className="btn-secondary w-full bg-red-100 hover:bg-red-200 text-red-700"
+                >
+                  重试
+                </button>
               </div>
             )}
 
