@@ -18,16 +18,16 @@
 
 ```bash
 # 1. 克隆项目
-git clone [your-repository-url]
-cd image-style-transfer
+git clone https://github.com/hooxing/4oPS.git
+cd 4oPS
 
 # 2. 配置环境变量
 cp .env.example .env
 # 编辑.env文件设置您的API密钥
 
 # 3. 构建并运行
-docker build -t image-style-transfer .
-docker run -p 3000:3000 -p 8080:8080 --env-file .env image-style-transfer
+docker build -t 4ops .
+docker run -p 3000:3000 -p 8080:8080 --env-file .env 4ops
 ```
 
 ### 手动部署
