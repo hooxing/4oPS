@@ -52,7 +52,7 @@ app.post('/api/process-image', upload.single('image'), async (req, res) => {
 
     // Prepare request payload
     const payload = {
-      model: 'gpt-4o-all',
+      model: process.env.API_MODEL,
       messages: [
         {
           role: 'user',
@@ -96,12 +96,47 @@ app.post('/api/process-image', upload.single('image'), async (req, res) => {
           payload: payload
         });
 
-        // Make API request
-        const response = await fetch(apiEndpoint, {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify(payload)
-        });
+        // 设置请求超时和重试配置
+        const timeout = 15 * 60 * 1000; // 15分钟超时
+        const maxRetries = 3;
+        let retryCount = 0;
+
+        // 重试函数
+        const fetchWithRetry = async () => {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            const response = await fetch(apiEndpoint, {
+              method: 'POST',
+              headers: headers,
+              body: JSON.stringify(payload),
+              signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+            return response;
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              throw new Error('请求超时');
+            }
+            throw error;
+          }
+        };
+
+        // 执行请求，支持重试
+        let response;
+        while (retryCount < maxRetries) {
+          try {
+            response = await fetchWithRetry();
+            if (response.ok) break;
+          } catch (error) {
+            console.error(`第${retryCount + 1}次请求失败:`, error);
+            retryCount++;
+            if (retryCount === maxRetries) throw error;
+            await new Promise(resolve => setTimeout(resolve, 5000 * retryCount));
+          }
+        }
 
         console.log('API Response Status:', response.status);
 
@@ -110,29 +145,41 @@ app.post('/api/process-image', upload.single('image'), async (req, res) => {
         }
 
         const result = await response.json();
-        console.log('API Response Data:', result);
+        console.log('API Response Data:', JSON.stringify(result, null, 2));
         
         // Process the API response and extract the generated image from choices
         let processedImage = null;
         if (result.choices && result.choices.length > 0) {
           const choice = result.choices[0];
+          console.log('Processing choice:', JSON.stringify(choice, null, 2));
+          
           if (choice.message && choice.message.content) {
             // 解析Markdown格式的内容
             const content = choice.message.content;
+            console.log('Content from API:', content);
+            
             const lines = content.split('\n');
+            console.log('Split content into lines:', lines);
             
             // 查找最后一个图片链接
             for (let i = lines.length - 1; i >= 0; i--) {
               const line = lines[i];
+              console.log(`Processing line ${i}:`, line);
+              
               if (line.startsWith('![') && line.includes('](')) {
                 const urlMatch = line.match(/\]\((.*?)\)/);
                 if (urlMatch && urlMatch[1]) {
                   processedImage = urlMatch[1];
+                  console.log('Found image URL:', processedImage);
                   break;
                 }
               }
             }
+          } else {
+            console.log('No message content found in choice');
           }
+        } else {
+          console.log('No choices found in API response');
         }
         
         if (!processedImage) {

@@ -107,6 +107,7 @@ function App() {
             throw new Error('无效的任务ID');
           }
           const statusResponse = await fetch(`http://localhost:3001/api/process-status/${data.taskId}`);
+          setProcessingStatus('图片正在处理中，预计需要5-10分钟...');
           if (!statusResponse.ok) {
             throw new Error('状态检查失败');
           }
@@ -122,7 +123,7 @@ function App() {
           }
           
           // 继续轮询
-          setTimeout(checkStatus, 5000); // 每5秒检查一次
+          setTimeout(checkStatus, 15000); // 每15秒检查一次
         } catch (error) {
           console.error('Status check error:', error);
           throw error;
