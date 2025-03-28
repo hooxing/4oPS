@@ -188,10 +188,14 @@ function App() {
               <h2 className="text-lg font-semibold mb-4">自定义提示词</h2>
               <textarea
                 value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
+                onChange={(e) => {
+                  setCustomPrompt(e.target.value);
+                  if (e.target.value) {
+                    setSelectedStyle(null);
+                  }
+                }}
                 placeholder="输入自定义提示词来描述你想要的效果..."
                 className="input-field h-24"
-                disabled={!!selectedStyle}
               />
             </div>
 
