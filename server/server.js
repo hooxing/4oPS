@@ -12,26 +12,24 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const app = express();
+// 创建路由器而不是应用
+const router = express.Router();
 const upload = multer({ 
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 24 * 60 * 60 * 1000, // 24 hours
-  max: 5, // 5 requests per windowMs
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 24 * 60 * 60 * 1000, // 24 hours
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 5, // 5 requests per windowMs
   message: { error: '已达到每日免费使用限额' }
 });
 
-app.use(cors());
-app.use(express.json());
-
 // Apply rate limiting to image processing endpoint
-app.use('/api/process-image', limiter);
+router.use('/process-image', limiter);
 
 // Image processing endpoint
-app.post('/api/process-image', upload.single('image'), async (req, res) => {
+router.post('/process-image', upload.single('image'), async (req, res) => {
   const taskId = createTask();
   try {
     if (!req.file) {
@@ -215,7 +213,7 @@ app.post('/api/process-image', upload.single('image'), async (req, res) => {
 });
 
 // 状态检查API端点
-app.get('/api/process-status/:taskId', (req, res) => {
+router.get('/process-status/:taskId', (req, res) => {
   try {
     const { taskId } = req.params;
     const task = getTask(taskId);
@@ -225,7 +223,5 @@ app.get('/api/process-status/:taskId', (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// 导出路由器，供主入口文件使用
+export default router;

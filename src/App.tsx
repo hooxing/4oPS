@@ -86,7 +86,7 @@ function App() {
       }
 
       setProcessingStatus('正在上传图片...');
-      const response = await fetch('http://localhost:3001/api/process-image', {
+      const response = await fetch('/api/process-image', {
         method: 'POST',
         body: formData
       });
@@ -108,7 +108,7 @@ function App() {
           if (!data.taskId) {
             throw new Error('无效的任务ID');
           }
-          const statusResponse = await fetch(`http://localhost:3001/api/process-status/${data.taskId}`);
+          const statusResponse = await fetch(`/api/process-status/${data.taskId}`);
           setProcessingStatus('图片正在处理中，预计需要5-10分钟...');
           if (!statusResponse.ok) {
             throw new Error('状态检查失败');
@@ -218,6 +218,8 @@ function App() {
                 <a
                   href={processedImageUrl}
                   download="processed-image.png"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="btn-secondary w-full text-center"
                 >
                   下载图片

@@ -27,26 +27,44 @@ cp .env.example .env
 
 # 3. 构建并运行
 docker build -t 4ops .
-docker run -p 3000:3000 -p 8080:8080 --env-file .env 4ops
+docker run -p 3000:3000 --env-file .env 4ops
 ```
 
 ### 手动部署
 
 ```bash
-# 前端依赖
+# 1. 克隆项目并安装依赖
+git clone https://github.com/hooxing/4oPS.git
+cd 4oPS
 npm install
 
-# 后端依赖
-cd server && npm install
-
-# 构建前端
+# 2. 构建前端
 npm run build
 
-# 启动服务
-node server/server.js
+# 3. 启动应用
+npm start
 ```
 
-访问应用: http://localhost:3000
+启动后访问: http://localhost:3000
+
+### 环境配置
+
+在项目根目录创建 `.env` 文件，参考 `.env.example` 进行配置：
+
+```
+# API配置
+API_KEY=your_api_key_here
+API_ENDPOINT=your_api_endpoint_here
+API_MODEL=your_api_model_here
+
+# 服务器配置
+PORT=3000
+NODE_ENV=production
+
+# 请求限制配置
+RATE_LIMIT_WINDOW_MS=86400000  # 24小时
+RATE_LIMIT_MAX_REQUESTS=5      # 每个时间窗口内的最大请求数
+```
 
 ## 使用指南
 
@@ -78,39 +96,3 @@ node server/server.js
   description: '模拟传统水彩画的透明质感'
 }
 ```
-
-## 提示词编写技巧
-
-### 预设风格提示词
-- 简洁明确，突出关键特征
-- 中英文均可，建议使用AI易理解的表述
-
-### 自定义提示词
-- 描述具体视觉效果：`"油画风格，厚重笔触"`
-- 组合多个特征：`"赛博朋克风格，霓虹色调"`
-- 避免模糊描述
-
-### 优质提示词示例
-1. `"复古胶片风格，添加颗粒感"`
-2. `"极简主义，黑白高对比度"`
-3. `"动漫风格，明亮色彩"`
-
-## 注意事项
-
-⚠️ **重要限制**  
-- 图片大小 ≤5MB  
-- 默认24小时内限制5次转换  
-- 确保`.env`配置正确  
-
-📝 **风格添加建议**  
-- 保持ID唯一性  
-- 测试实际效果  
-- 提供清晰的用户描述  
-
-## 技术支持
-
-遇到问题？请提交Issue或联系：support@example.com
-
-## 许可证
-
-MIT License © 2023
