@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { PhotoIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { FaGithub } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 
 interface StyleOption {
@@ -119,9 +120,13 @@ function App() {
             setProcessedImageUrl(statusData.resultImage);
             setProcessingStatus('');
             toast.success('图片处理成功！');
+            setIsProcessing(false);
             return;
           } else if (statusData.status === 'failed') {
-            throw new Error(statusData.error || '处理失败');
+            setProcessingStatus('');
+            setError(statusData.error || '处理失败');
+            setIsProcessing(false);
+            return;
           }
           
           // 继续轮询
@@ -147,7 +152,7 @@ function App() {
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">AI图片风格转换</h1>
+        <h1 className="text-3xl font-bold text-center mb-8">用GPT-4o来PS</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* 左侧：图片上传区域 */}
@@ -258,6 +263,13 @@ function App() {
             </div>
           </div>
         </div>
+      </div>
+      {/* GitHub链接 */}
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-100 py-2 text-center text-sm text-gray-600">
+        <a href="https://github.com/hooxing/4oPS" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors duration-200 inline-flex items-center gap-2">
+          <FaGithub className="h-5 w-5" />
+          hooxing/4oPS
+        </a>
       </div>
     </div>
   );
