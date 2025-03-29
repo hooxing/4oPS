@@ -2,9 +2,16 @@
 # 前端构建阶段
 FROM node:18-alpine AS frontend-builder
 WORKDIR /app
+# 复制依赖相关文件
 COPY package*.json ./
+COPY postcss.config.js ./
+COPY tailwind.config.js ./
+COPY tsconfig*.json ./
+COPY vite.config.ts ./
 RUN npm install
-COPY . .
+# 复制源代码
+COPY src ./src
+COPY index.html ./
 RUN npm run build
 
 # 后端构建阶段
@@ -29,7 +36,7 @@ ENV NODE_ENV=production
 
 # 暴露端口
 EXPOSE 3000
-EXPOSE 8080
+EXPOSE 3001
 
 # 启动命令
 CMD ["node", "server/server.js"]
