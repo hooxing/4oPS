@@ -102,7 +102,7 @@ function App() {
         throw new Error('服务器未返回任务ID');
       }
 
-      setProcessingStatus('图片正在处理中，预计需要1-5分钟...');
+      setProcessingStatus('图片正在处理中，预计需要1-5分钟，处理时请勿关闭浏览器...');
       // 轮询检查处理状态
       const checkStatus = async () => {
         try {

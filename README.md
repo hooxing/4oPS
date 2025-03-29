@@ -1,6 +1,6 @@
-# 图片风格转换应用
+# 用GPT-4o来PS
 
-![应用截图](应用截图URL) <!-- 建议添加实际截图 -->
+![应用截图](https://uchat.cn-bj.ufileos.com/rw_f72e2b01-5bcc-4048-9087-2b186f53102b_image.png)
 
 使用逆向GPT-4o API完成图片风格转换，支持多种预设风格和自定义提示词。
 
