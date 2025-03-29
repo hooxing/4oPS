@@ -14,7 +14,7 @@
 
 ## 快速部署
 
-### 🐳 Docker部署 (推荐)
+### 🐳 Docker部署 
 
 ```bash
 # 1. 克隆项目
@@ -26,9 +26,11 @@ cp .env.example .env
 # 编辑.env文件设置您的API密钥
 
 # 3. 构建并运行
-docker build -t 4ops .
-docker run -p 3000:3000 --env-file .env 4ops
+docker build -t 4ops .  # 这将安装依赖并构建前端
+docker run -p 3000:3000 --env-file .env 4ops  # 启动应用
 ```
+
+访问 http://localhost:3000 即可使用应用
 
 ### 手动部署
 
@@ -54,7 +56,7 @@ npm start
 ```
 # API配置
 API_KEY=your_api_key_here
-API_ENDPOINT=your_api_endpoint_here
+API_ENDPOINT=your_api_endpoint_here #需要携带/chat/completions
 API_MODEL=your_api_model_here
 
 # 服务器配置
